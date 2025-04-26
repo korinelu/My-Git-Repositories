@@ -1,0 +1,36 @@
+trigger: none  # Manual trigger only
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  TF_IN_AUTOMATION: true
+
+stages:
+- stage: Terraform
+  displayName: Terraform Apply
+  jobs:
+  - job: Terraform
+    displayName: 'Terraform Init & Apply'
+    steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.x'
+
+    - script: |
+        curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+        echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+        sudo apt update && sudo apt install terraform -y
+      displayName: 'Install Terraform'
+
+    - script: terraform init
+      workingDirectory: terraform
+      displayName: 'Terraform Init'
+
+    - script: terraform validate
+      workingDirectory: terraform
+      displayName: 'Terraform Validate'
+
+    - script: terraform apply -auto-approve
+      workingDirectory: terraform
+      displayName: 'Terraform Apply'

@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aks-html
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aks-html
+  template:
+    metadata:
+      labels:
+        app: aks-html
+    spec:
+      containers:
+        - name: aks-html
+          image: azureacrt14.azurecr.io/myazureproject:$(Build.BuildId)
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+      imagePullSecrets:
+        - name: azureacrt144967-auth
